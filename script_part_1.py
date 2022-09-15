@@ -18,7 +18,6 @@ This program is an installer for Orange OS LE, you can find more information in 
 
 # There is no part 2 of this script anymore, but the name remains for backward compatability.
 
-
 import sys, os
 
 hard_drive = ""
@@ -27,7 +26,6 @@ keyboard_layout = ""
 language = ""
 time_zone = ""
 location = ""
-
 
 def ui():
     global hard_drive, host_name, keyboard_layout, language, time_zone, location
@@ -53,33 +51,32 @@ def ui():
     ).capitalize()
 
     print("Okay, now we are going to setup users for you.")
-    user_creds = open("user_credentials.json", "w")
-    user_creds.write(
-        """{
+    with open("user_credentials.json", "w") as user_creds:
+        user_creds.write(
+            """{
         "!users": ["""
-    )
-    users_no = int(input("First, how many users do you want the system to hold: "))
-    for x in range(0, users_no):
-        user_creds.write("{\n")
-        username = input(f"Ok what the you want the username of user {x + 1} to be: ")
-        password = input(f"Now, what password do you want to give {username}: ")
-        superuser = input(
-            f"Lastly do you want {username} to be a superuser? Leave blank if you don't: "
         )
-        user_creds.write(f'"!password": "{password}",\n')
-        if superuser:
-            user_creds.write('"sudo": true,\n')
-        else:
-            user_creds.write('"sudo": false,\n')
+        users_no = int(input("First, how many users do you want the system to hold: "))
+        for x in range(users_no):
+            user_creds.write("{\n")
+            username = input(f"Ok what the you want the username of user {x + 1} to be: ")
+            password = input(f"Now, what password do you want to give {username}: ")
+            superuser = input(
+                f"Lastly do you want {username} to be a superuser? Leave blank if you don't: "
+            )
+            user_creds.write(f'"!password": "{password}",\n')
+            if superuser:
+                user_creds.write('"sudo": true,\n')
+            else:
+                user_creds.write('"sudo": false,\n')
 
-        user_creds.write(f'"username": "{username}"\n')
-        user_creds.write("}")
-        if x == users_no - 1:
-            user_creds.write("\n")
-        else:
-            user_creds.write(",\n")
-    user_creds.write("]\n}")
-    user_creds.close()
+            user_creds.write(f'"username": "{username}"\n')
+            user_creds.write("}")
+            if x == users_no - 1:
+                user_creds.write("\n")
+            else:
+                user_creds.write(",\n")
+        user_creds.write("]\n}")
 
 def config_file():
     global hard_drive, host_name, keyboard_layout, language, time_zone, location
@@ -90,32 +87,27 @@ def config_file():
     language = config.readline().replace("\n", "")
     time_zone = config.readline().replace("\n", "")
     location = config.readline().capitalize().replace("\n", "")
-
-    user_creds = open("user_credentials.json", "w")
-    user_creds.write(
-        """{
-        "!users": ["""
-    )
-    users_no = int(config.readline().replace("\n", ""))
-    for x in range(0, users_no):
-        user_creds.write("{\n")
-        username = config.readline().replace("\n", "")
-        password = config.readline().replace("\n", "")
-        superuser = config.readline().replace("\n", "")
-        user_creds.write(f'"!password": "{password}",\n')
-        if superuser:
-            user_creds.write('"sudo": true,\n')
-        else:
-            user_creds.write('"sudo": false,\n')
-
-        user_creds.write(f'"username": "{username}"\n')
-        user_creds.write("}")
-        if x == users_no - 1:
-            user_creds.write("\n")
-        else:
-            user_creds.write(",\n")
-    user_creds.write("]\n}")
-    user_creds.close()
+    with open("user_credentials.json", "w") as user_creds:
+        user_creds.write("""{
+        "!users": [""")
+        users_no = int(config.readline().replace("\n", ""))
+        for x in range(users_no):
+            user_creds.write("{\n")
+            username = config.readline().replace("\n", "")
+            password = config.readline().replace("\n", "")
+            superuser = config.readline().replace("\n", "")
+            user_creds.write(f'"!password": "{password}",\n')
+            if superuser:
+                user_creds.write('"sudo": true,\n')
+            else:
+                user_creds.write('"sudo": false,\n')
+            user_creds.write(f'"username": "{username}"\n')
+            user_creds.write("}")
+            if x == users_no - 1:
+                user_creds.write("\n")
+            else:
+                user_creds.write(",\n")
+        user_creds.write("]\n}")
 
 
 
@@ -126,9 +118,9 @@ else:
     ui()
 
 
-user_config = open("user_configuration.json", "w")
-user_config.write(
-    f"""{'{'}
+with open("user_configuration.json", "w") as user_config:
+    user_config.write(
+        f"""{'{'}
 "additional-repositories": "",
 "audio": "pipewire",
 "bootloader": "grub-install",
@@ -172,9 +164,7 @@ user_config.write(
         "systemctl enable gdm.service"
 ]
 {'}'}"""
-)
-user_config.close()
-# user creds
+    )
 print("Now we will setup the disks for you. Unfourtuanatley, we can't offer to let you")
 print("do the disk partioning, but we might offer this in future.")
 confirm_installation = input(
